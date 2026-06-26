@@ -1,0 +1,159 @@
+﻿@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+        <p class="text-muted">Overview of bugs and test cases</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a asp-controller="Bugs" asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Log New Bug
+        </a>
+        <a asp-controller="TestCases" asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> New Test Case
+        </a>
+    </div>
+</div>
+
+<!-- Bug Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Bugs</h5>
+                <h2>@Model.TotalBugs</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Open Bugs</h5>
+                <h2>@Model.OpenBugs</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Test Cases</h5>
+                <h2>@Model.TotalTestCases</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Pass Rate</h5>
+                <h2>@Model.PassRate.ToString("F1")%</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bug Priority Breakdown -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-pie-chart"></i> Bugs by Priority</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <span class="badge bg-success">Low: @Model.BugsByPriorityLow</span><br />
+                        <span class="badge bg-info">Medium: @Model.BugsByPriorityMedium</span><br />
+                        <span class="badge bg-warning">High: @Model.BugsByPriorityHigh</span><br />
+                        <span class="badge bg-danger">Critical: @Model.BugsByPriorityCritical</span>
+                    </div>
+                    <div class="col-6">
+                        <a asp-controller="Bugs" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            View All Bugs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Bugs by Status</h5>
+            </div>
+            <div class="card-body">
+                @foreach (var status in Model.BugsByStatus)
+                {
+                    <span class="badge bg-secondary">@status.Key: @status.Value</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Recent Test Runs</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentTestRuns.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var run in Model.RecentTestRuns.Take(5))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@run.TestCase.Title</strong><br />
+                                    <small class="text-muted">by @run.ExecutedBy on @run.ExecutedDate.ToString("g")</small>
+                                </div>
+                                <span class="badge @(run.Result == TestResult.Pass ? "bg-success" : run.Result == TestResult.Fail ? "bg-danger" : "bg-warning")">
+                                    @run.Result
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">No recent test runs</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Recent Bugs</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentBugs.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var bug in Model.RecentBugs.Take(5))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong><a asp-controller="Bugs" asp-action="Details" asp-route-id="@bug.Id">@bug.Title</a></strong><br />
+                                    <small class="text-muted">@bug.Status - @bug.Priority</small>
+                                </div>
+                                <span class="badge @(bug.Severity == BugSeverity.Critical || bug.Severity == BugSeverity.Blocker ? "bg-danger" : bug.Severity == BugSeverity.Major ? "bg-warning" : "bg-info")">
+                                    @bug.Severity
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">No recent bugs</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

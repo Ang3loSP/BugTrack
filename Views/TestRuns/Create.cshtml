@@ -1,0 +1,133 @@
+﻿@model CreateTestRunViewModel
+
+@{
+    ViewData["Title"] = $"Execute Test Case: {Model.TestCaseTitle}";
+}
+
+<h1><i class="bi bi-play"></i> Execute Test Case</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">Test Case Details</div>
+            <div class="card-body">
+                <h5>@Model.TestCaseTitle</h5>
+                <p class="text-muted">Test Case ID: #@Model.TestCaseId</p>
+            </div>
+        </div>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="TestCaseId" />
+
+            <div class="form-group mb-3">
+                <label asp-for="ExecutedBy" class="control-label"></label>
+                <input asp-for="ExecutedBy" class="form-control" />
+                <span asp-validation-for="ExecutedBy" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Result" class="control-label"></label>
+                <select asp-for="Result" class="form-select" asp-items="Html.GetEnumSelectList<TestResult>()"></select>
+                <span asp-validation-for="Result" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ActualResult" class="control-label"></label>
+                <textarea asp-for="ActualResult" class="form-control" rows="3" placeholder="What actually happened during execution?"></textarea>
+                <span asp-validation-for="ActualResult" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Notes" class="control-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes about this execution"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div id="bugCreationSection" style="display:none;" class="card mb-3 border-danger">
+                <div class="card-header bg-danger text-white">
+                    <i class="bi bi-exclamation-triangle"></i> Create Bug from Failed Test
+                </div>
+                <div class="card-body">
+                    <div class="form-check mb-3">
+                        <input asp-for="CreateBugFromFailure" class="form-check-input" />
+                        <label asp-for="CreateBugFromFailure" class="form-check-label"></label>
+                    </div>
+
+                    <div id="bugFields" style="display:none;">
+                        <div class="form-group mb-3">
+                            <label asp-for="BugTitle" class="control-label"></label>
+                            <input asp-for="BugTitle" class="form-control" placeholder="Brief title for the bug" />
+                            <span asp-validation-for="BugTitle" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="BugDescription" class="control-label"></label>
+                            <textarea asp-for="BugDescription" class="form-control" rows="2" placeholder="Detailed description of the bug"></textarea>
+                            <span asp-validation-for="BugDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="StepsToReproduce" class="control-label"></label>
+                            <textarea asp-for="StepsToReproduce" class="form-control" rows="3" placeholder="Steps to reproduce the bug"></textarea>
+                            <span asp-validation-for="StepsToReproduce" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="BugPriority" class="control-label"></label>
+                                    <select asp-for="BugPriority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()"></select>
+                                    <span asp-validation-for="BugPriority" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="BugSeverity" class="control-label"></label>
+                                    <select asp-for="BugSeverity" class="form-select" asp-items="Html.GetEnumSelectList<BugSeverity>()"></select>
+                                    <span asp-validation-for="BugSeverity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save Execution" class="btn btn-success" />
+                <a asp-controller="TestCases" asp-action="Details" asp-route-id="@Model.TestCaseId" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            $('#Result').change(function() {
+                if ($(this).val() === '1') {
+                    $('#bugCreationSection').show();
+                } else {
+                    $('#bugCreationSection').hide();
+                    $('#CreateBugFromFailure').prop('checked', false);
+                    $('#bugFields').hide();
+                }
+            });
+
+            $('#CreateBugFromFailure').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#bugFields').show();
+                } else {
+                    $('#bugFields').hide();
+                }
+            });
+
+            $('#Result').trigger('change');
+        });
+    </script>
+}

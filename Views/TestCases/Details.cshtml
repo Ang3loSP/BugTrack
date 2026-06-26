@@ -1,0 +1,114 @@
+@model TestCase
+
+@{
+    ViewData["Title"] = $"Test Case #{Model.Id} - {Model.Title}";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <h1>Test Case #@Model.Id: @Model.Title</h1>
+        <hr />
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <strong>Priority</strong>
+                <br />
+                <span class="badge @(Model.Priority == TestPriority.High ? "bg-danger" : Model.Priority == TestPriority.Medium ? "bg-warning" : "bg-info")">
+                    @Model.Priority
+                </span>
+            </div>
+            <div class="col-md-4">
+                <strong>Module</strong>
+                <br />
+                @(Model.Module ?? "N/A")
+            </div>
+            <div class="col-md-4">
+                <strong>Created</strong>
+                <br />
+                @Model.CreatedDate.ToString("g")
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Preconditions))
+        {
+            <div class="card mb-3">
+                <div class="card-header">Preconditions</div>
+                <div class="card-body">
+                    <p>@Model.Preconditions</p>
+                </div>
+            </div>
+        }
+
+        <div class="card mb-3">
+            <div class="card-header">Steps</div>
+            <div class="card-body">
+                <pre>@Model.Steps</pre>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header">Expected Result</div>
+            <div class="card-body">
+                <p>@Model.ExpectedResult</p>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a asp-controller="TestRuns" asp-action="Create" asp-route-testCaseId="@Model.Id" class="btn btn-success">
+                <i class="bi bi-play"></i> Execute Test
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-clock-history"></i> Execution History</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.TestRuns.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var run in Model.TestRuns.OrderByDescending(r => r.ExecutedDate))
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge @(run.Result == TestResult.Pass ? "bg-success" : run.Result == TestResult.Fail ? "bg-danger" : "bg-warning")">
+                                        @run.Result
+                                    </span>
+                                    <small class="text-muted">@run.ExecutedDate.ToString("g")</small>
+                                </div>
+                                <small class="text-muted">by @run.ExecutedBy</small>
+                                @if (run.LinkedBug != null)
+                                {
+                                    <br />
+                                    <small>
+                                        <i class="bi bi-bug"></i>
+                                        <a asp-controller="Bugs" asp-action="Details" asp-route-id="@run.LinkedBug.Id">
+                                            Bug #@run.LinkedBug.Id
+                                        </a>
+                                    </small>
+                                }
+                                @if (!string.IsNullOrEmpty(run.Notes))
+                                {
+                                    <br />
+                                    <small class="text-muted">@run.Notes</small>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No executions yet</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

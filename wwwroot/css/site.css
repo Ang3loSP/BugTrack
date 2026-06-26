@@ -1,0 +1,74 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Dashboard Cards */
+.card .card-header {
+    font-weight: 600;
+}
+
+/* Bug Status Badges */
+.badge {
+    font-size: 0.85rem;
+}
+
+/* Preformatted text for steps */
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+/* Table styling */
+.table td {
+    vertical-align: middle;
+}
+
+/* Form styling */
+.control-label {
+    font-weight: 600;
+}
+
+/* Dashboard Stats */
+.card h2 {
+    margin: 0;
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+
+/* Custom scroll for test run history */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+    .list-group-item:first-child {
+        border-top: none;
+    }

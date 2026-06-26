@@ -1,0 +1,108 @@
+@model BugListViewModel
+
+@{
+    ViewData["Title"] = "Bugs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-exclamation-triangle"></i> Bugs</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Log New Bug
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select asp-for="FilterStatus" class="form-select" asp-items="Html.GetEnumSelectList<BugStatus>()">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Priority</label>
+                <select asp-for="FilterPriority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Severity</label>
+                <select asp-for="FilterSeverity" class="form-select" asp-items="Html.GetEnumSelectList<BugSeverity>()">
+                    <option value="">All</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input asp-for="SearchTerm" class="form-control" placeholder="Search bugs..." />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Severity</th>
+                <th>Created</th>
+                <th>Assigned To</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Bugs.Any())
+            {
+                @foreach (var bug in Model.Bugs)
+                {
+                    <tr>
+                        <td>#@bug.Id</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@bug.Id">@bug.Title</a>
+                        </td>
+                        <td>
+                            <span class="badge @(bug.Status == BugStatus.Closed ? "bg-success" : bug.Status == BugStatus.New ? "bg-primary" : "bg-warning")">
+                                @bug.Status
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @(bug.Priority == BugPriority.Critical ? "bg-danger" : bug.Priority == BugPriority.High ? "bg-warning" : "bg-info")">
+                                @bug.Priority
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @(bug.Severity == BugSeverity.Blocker || bug.Severity == BugSeverity.Critical ? "bg-danger" : bug.Severity == BugSeverity.Major ? "bg-warning" : "bg-secondary")">
+                                @bug.Severity
+                            </span>
+                        </td>
+                        <td>@bug.CreatedDate.ToString("d")</td>
+                        <td>@(bug.AssignedTo ?? "Unassigned")</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No bugs found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
