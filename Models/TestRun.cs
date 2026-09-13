@@ -35,7 +35,5 @@ namespace BugTrack.Models
 
         [ForeignKey("LinkedBugId")]
         public virtual Bug? LinkedBug { get; set; }
-
-        public virtual ICollection<Bug>? BugsFromThisRun { get; set; }
     }
 }

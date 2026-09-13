@@ -11,7 +11,7 @@ Built as a portfolio project demonstrating practical understanding of software t
 - **Test case management** — create, edit, delete & view test cases with Module, Preconditions, Steps, Expected Result & Priority.
 - **Test run history** — every execution of a test case is logged as its own record (date, tester, actual result, Pass/Fail/Blocked, notes), rather than a single overwritten status field.
 - **Bug-from-failed-run linking** — logging a Fail result against a test case offers the option to generate a linked bug directly, with the relationship tracked in both directions.
-- **Dashboard** — summary view of total & open bugs by priority/status, total test cases by priority, total test runs & an overall pass rate.
+- **Dashboard** — stat tiles for total & open bugs, test case count & pass rate; bug breakdowns by priority and status; recent test runs & recent bugs.
 - **Filtering & search** — bug list filterable by status, priority & severity; test case list filterable by module & priority, both with keyword search.
 
 ## Tech Stack
@@ -19,7 +19,7 @@ Built as a portfolio project demonstrating practical understanding of software t
 - ASP.NET Core 8 MVC, C#
 - Entity Framework Core 8 (code-first, migrations)
 - SQL Server (LocalDB for development)
-- Razor Views, Bootstrap 5
+- Razor Views, Bootstrap 5 with a custom "Midnight Indigo Liquid Glass" design system (CSS-variable theme, glass panels, custom fonts)
 - jQuery / jQuery Validation (client-side form validation)
 
 ## Data Model
@@ -55,7 +55,9 @@ On first run, the database is seeded with a small set of sample test cases, bugs
 
 ## Project Status
 
-This is a v1 build covering the core & extended scope defined in the project brief (status lifecycle, severity/priority split, test run history, bug-test run linking, dashboard & filtering). Out of scope for this version: multi-user accounts & role-based permissions, automated test execution, a Kanban-style board UI & notification alerts. These are documented as potential v2 additions in the project brief, not implemented here.
+Current version: **1.1.0** — see the [CHANGELOG](CHANGELOG.md) for the full change history.
+
+v1.1.0 covers the core & extended scope defined in the project brief (status lifecycle, severity/priority split, test run history, bug-test run linking, dashboard & filtering), followed by a bug-hardening pass (delete guardrails, overposting & status-bypass fixes, transactional test runs) and a complete UI modernization with the Liquid Glass theme. Out of scope for this version: multi-user accounts & role-based permissions, automated test execution, a Kanban-style board UI & notification alerts. These are documented as potential v2 additions in the project brief, not implemented here.
 
 No automated unit tests are included in this version.
 

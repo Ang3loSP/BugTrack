@@ -12,6 +12,25 @@
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+
+    const nav = document.querySelector('.app-nav');
+    if (nav) {
+        const onScroll = () => {
+            nav.classList.toggle('is-scrolled', window.scrollY > 8);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+
+    if (window.matchMedia('(pointer: fine)').matches) {
+        document.querySelectorAll('.card, .stat-tile, .glass-panel').forEach(el => {
+            el.addEventListener('pointermove', e => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--lx', ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%');
+                el.style.setProperty('--ly', ((e.clientY - rect.top) / rect.height * 100).toFixed(1) + '%');
+            });
+        });
+    }
 });
 
 function confirmDelete(message) {

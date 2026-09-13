@@ -4,101 +4,120 @@
     ViewData["Title"] = $"Execute Test Case: {Model.TestCaseTitle}";
 }
 
-<h1><i class="bi bi-play"></i> Execute Test Case</h1>
-<hr />
+<div class="page-head">
+    <div>
+        <div class="page-kicker">Execution</div>
+        <h1 class="page-title">Execute Test Case</h1>
+        <p class="page-sub">Record the outcome. A failing run can open a defect right here.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="TestCases" asp-action="Details" asp-route-id="@Model.TestCaseId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Test Case
+        </a>
+    </div>
+</div>
 
 <div class="row">
-    <div class="col-md-8">
-        <div class="card mb-3">
-            <div class="card-header">Test Case Details</div>
+    <div class="col-lg-8">
+        <div class="card glass-panel mb-4">
+            <div class="card-header"><i class="bi bi-clipboard2-check"></i> Test Case</div>
             <div class="card-body">
-                <h5>@Model.TestCaseTitle</h5>
-                <p class="text-muted">Test Case ID: #@Model.TestCaseId</p>
+                <h5 class="card-title">@Model.TestCaseTitle</h5>
+                <p class="font-mono mb-0" style="font-size:.8rem;color:var(--ink-mute);">Test Case ID: #@Model.TestCaseId</p>
             </div>
         </div>
 
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="TestCaseId" />
+        <div class="card glass-panel">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="TestCaseId" />
 
-            <div class="form-group mb-3">
-                <label asp-for="ExecutedBy" class="control-label"></label>
-                <input asp-for="ExecutedBy" class="form-control" />
-                <span asp-validation-for="ExecutedBy" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Result" class="control-label"></label>
-                <select asp-for="Result" class="form-select" asp-items="Html.GetEnumSelectList<TestResult>()"></select>
-                <span asp-validation-for="Result" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="ActualResult" class="control-label"></label>
-                <textarea asp-for="ActualResult" class="form-control" rows="3" placeholder="What actually happened during execution?"></textarea>
-                <span asp-validation-for="ActualResult" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mb-3">
-                <label asp-for="Notes" class="control-label"></label>
-                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes about this execution"></textarea>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-
-            <div id="bugCreationSection" style="display:none;" class="card mb-3 border-danger">
-                <div class="card-header bg-danger text-white">
-                    <i class="bi bi-exclamation-triangle"></i> Create Bug from Failed Test
-                </div>
-                <div class="card-body">
-                    <div class="form-check mb-3">
-                        <input asp-for="CreateBugFromFailure" class="form-check-input" />
-                        <label asp-for="CreateBugFromFailure" class="form-check-label"></label>
-                    </div>
-
-                    <div id="bugFields" style="display:none;">
-                        <div class="form-group mb-3">
-                            <label asp-for="BugTitle" class="control-label"></label>
-                            <input asp-for="BugTitle" class="form-control" placeholder="Brief title for the bug" />
-                            <span asp-validation-for="BugTitle" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="BugDescription" class="control-label"></label>
-                            <textarea asp-for="BugDescription" class="form-control" rows="2" placeholder="Detailed description of the bug"></textarea>
-                            <span asp-validation-for="BugDescription" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="StepsToReproduce" class="control-label"></label>
-                            <textarea asp-for="StepsToReproduce" class="form-control" rows="3" placeholder="Steps to reproduce the bug"></textarea>
-                            <span asp-validation-for="StepsToReproduce" class="text-danger"></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="BugPriority" class="control-label"></label>
-                                    <select asp-for="BugPriority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()"></select>
-                                    <span asp-validation-for="BugPriority" class="text-danger"></span>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="ExecutedBy" class="form-label"></label>
+                                <input asp-for="ExecutedBy" class="form-control" placeholder="Who ran it?" />
+                                <span asp-validation-for="ExecutedBy" class="text-danger"></span>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="BugSeverity" class="control-label"></label>
-                                    <select asp-for="BugSeverity" class="form-select" asp-items="Html.GetEnumSelectList<BugSeverity>()"></select>
-                                    <span asp-validation-for="BugSeverity" class="text-danger"></span>
-                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Result" class="form-label"></label>
+                                <select asp-for="Result" class="form-select" asp-items="Html.GetEnumSelectList<TestResult>()"></select>
+                                <span asp-validation-for="Result" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="form-group">
-                <input type="submit" value="Save Execution" class="btn btn-success" />
-                <a asp-controller="TestCases" asp-action="Details" asp-route-id="@Model.TestCaseId" class="btn btn-secondary">Cancel</a>
+                    <div class="form-group mb-3">
+                        <label asp-for="ActualResult" class="form-label"></label>
+                        <textarea asp-for="ActualResult" class="form-control" rows="3" placeholder="What actually happened during execution?"></textarea>
+                        <span asp-validation-for="ActualResult" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Additional notes about this execution"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <div id="bugCreationSection" style="display:none;" class="card mb-4 border-danger">
+                        <div class="card-header">
+                            <i class="bi bi-exclamation-triangle text-danger"></i> Create Bug from Failed Test
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-3">
+                                <input asp-for="CreateBugFromFailure" class="form-check-input" />
+                                <label asp-for="CreateBugFromFailure" class="form-check-label"></label>
+                            </div>
+
+                            <div id="bugFields" style="display:none;">
+                                <div class="form-group mb-3">
+                                    <label asp-for="BugTitle" class="form-label"></label>
+                                    <input asp-for="BugTitle" class="form-control" placeholder="Brief title for the bug" />
+                                    <span asp-validation-for="BugTitle" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="BugDescription" class="form-label"></label>
+                                    <textarea asp-for="BugDescription" class="form-control" rows="2" placeholder="Detailed description of the bug"></textarea>
+                                    <span asp-validation-for="BugDescription" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="StepsToReproduce" class="form-label"></label>
+                                    <textarea asp-for="StepsToReproduce" class="form-control" rows="3" placeholder="Steps to reproduce the bug"></textarea>
+                                    <span asp-validation-for="StepsToReproduce" class="text-danger"></span>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="BugPriority" class="form-label"></label>
+                                            <select asp-for="BugPriority" class="form-select" asp-items="Html.GetEnumSelectList<BugPriority>()"></select>
+                                            <span asp-validation-for="BugPriority" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-3">
+                                            <label asp-for="BugSeverity" class="form-label"></label>
+                                            <select asp-for="BugSeverity" class="form-select" asp-items="Html.GetEnumSelectList<BugSeverity>()"></select>
+                                            <span asp-validation-for="BugSeverity" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <input type="submit" value="Save Execution" class="btn btn-success" />
+                        <a asp-controller="TestCases" asp-action="Details" asp-route-id="@Model.TestCaseId" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -110,7 +129,7 @@
     <script>
         $(document).ready(function() {
             $('#Result').change(function() {
-                if ($(this).val() === '1') {
+                if ($(this).val() === '@((int)TestResult.Fail)') {
                     $('#bugCreationSection').show();
                 } else {
                     $('#bugCreationSection').hide();

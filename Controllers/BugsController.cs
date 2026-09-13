@@ -136,7 +136,7 @@ namespace BugTrack.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,StepsToReproduce,Severity,Priority,Status,AssignedTo,CreatedDate,LinkedTestRunId")] Bug bug)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,StepsToReproduce,Severity,Priority,AssignedTo")] Bug bug)
         {
             if (id != bug.Id)
                 return NotFound();
@@ -145,7 +145,15 @@ namespace BugTrack.Controllers
             {
                 try
                 {
+                    var existing = await _context.Bugs.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
+                    if (existing == null)
+                        return NotFound();
+
+                    bug.Status = existing.Status;
+                    bug.CreatedDate = existing.CreatedDate;
+                    bug.LinkedTestRunId = existing.LinkedTestRunId;
                     bug.UpdatedDate = DateTime.UtcNow;
+
                     _context.Update(bug);
                     await _context.SaveChangesAsync();
 
@@ -174,6 +182,8 @@ namespace BugTrack.Controllers
             if (bug == null)
                 return NotFound();
 
+            ViewBag.LinkedRunCount = await _context.TestRuns.CountAsync(tr => tr.LinkedBugId == id.Value);
+
             return View(bug);
         }
 
@@ -184,10 +194,25 @@ namespace BugTrack.Controllers
             var bug = await _context.Bugs.FindAsync(id);
             if (bug != null)
             {
-                _context.Bugs.Remove(bug);
-                await _context.SaveChangesAsync();
+                var linkedRunCount = await _context.TestRuns.CountAsync(tr => tr.LinkedBugId == id);
+                if (linkedRunCount > 0)
+                {
+                    TempData["Error"] = "This bug is linked to test run(s) and cannot be deleted.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                TempData["Success"] = "Bug deleted successfully!";
+                try
+                {
+                    _context.Bugs.Remove(bug);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Bug deleted successfully!";
+                }
+                catch (DbUpdateException)
+                {
+                    TempData["Error"] = "This bug is referenced by other records and could not be deleted.";
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             return RedirectToAction(nameof(Index));

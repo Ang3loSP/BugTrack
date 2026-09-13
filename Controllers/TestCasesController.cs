@@ -110,7 +110,7 @@ namespace BugTrack.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Module,Preconditions,Steps,ExpectedResult,Priority,CreatedDate")] TestCase testCase)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Module,Preconditions,Steps,ExpectedResult,Priority")] TestCase testCase)
         {
             if (id != testCase.Id)
                 return NotFound();
@@ -119,7 +119,13 @@ namespace BugTrack.Controllers
             {
                 try
                 {
+                    var existing = await _context.TestCases.AsNoTracking().FirstOrDefaultAsync(tc => tc.Id == id);
+                    if (existing == null)
+                        return NotFound();
+
+                    testCase.CreatedDate = existing.CreatedDate;
                     testCase.UpdatedDate = DateTime.UtcNow;
+
                     _context.Update(testCase);
                     await _context.SaveChangesAsync();
 
@@ -149,6 +155,8 @@ namespace BugTrack.Controllers
             if (testCase == null)
                 return NotFound();
 
+            ViewBag.TestRunCount = testCase.TestRuns.Count;
+
             return View(testCase);
         }
 
@@ -159,10 +167,25 @@ namespace BugTrack.Controllers
             var testCase = await _context.TestCases.FindAsync(id);
             if (testCase != null)
             {
-                _context.TestCases.Remove(testCase);
-                await _context.SaveChangesAsync();
+                var runCount = await _context.TestRuns.CountAsync(tr => tr.TestCaseId == id);
+                if (runCount > 0)
+                {
+                    TempData["Error"] = "This test case has execution history and cannot be deleted.";
+                    return RedirectToAction(nameof(Index));
+                }
 
-                TempData["Success"] = "Test case deleted successfully!";
+                try
+                {
+                    _context.TestCases.Remove(testCase);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Test case deleted successfully!";
+                }
+                catch (DbUpdateException)
+                {
+                    TempData["Error"] = "This test case is referenced by other records and could not be deleted.";
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             return RedirectToAction(nameof(Index));

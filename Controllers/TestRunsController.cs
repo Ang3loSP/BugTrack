@@ -37,6 +37,8 @@ namespace BugTrack.Controllers
         {
             if (ModelState.IsValid)
             {
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
                 var testRun = new TestRun
                 {
                     TestCaseId = model.TestCaseId,
@@ -79,6 +81,8 @@ namespace BugTrack.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
+
+                await transaction.CommitAsync();
 
                 TempData["Success"] = "Test execution recorded successfully!";
                 return RedirectToAction("Details", "TestCases", new { id = model.TestCaseId });

@@ -17,49 +17,75 @@ namespace BugTrack.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var bugs = await _context.Bugs.ToListAsync();
-            var testCases = await _context.TestCases
-                .Include(tc => tc.TestRuns)
-                .ToListAsync();
-            var testRuns = await _context.TestRuns
+            var totalBugs = await _context.Bugs.CountAsync();
+            var openBugs = await _context.Bugs.CountAsync(b => b.Status != BugStatus.Closed);
+
+            var bugsByPriority = await _context.Bugs
+                .GroupBy(b => b.Priority)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var bugsByStatus = await _context.Bugs
+                .GroupBy(b => b.Status)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var totalTestCases = await _context.TestCases.CountAsync();
+
+            var testCasesByPriority = await _context.TestCases
+                .GroupBy(tc => tc.Priority)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var totalTestRuns = await _context.TestRuns.CountAsync();
+
+            var runsByResult = await _context.TestRuns
+                .GroupBy(tr => tr.Result)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var passCount = runsByResult.GetValueOrDefault(TestResult.Pass);
+            var failCount = runsByResult.GetValueOrDefault(TestResult.Fail);
+            var executed = passCount + failCount;
+            var passRate = executed > 0 ? (double)passCount / executed * 100 : 0;
+
+            var recentTestRuns = await _context.TestRuns
                 .Include(tr => tr.TestCase)
                 .OrderByDescending(tr => tr.ExecutedDate)
                 .Take(10)
                 .ToListAsync();
 
+            var recentBugs = await _context.Bugs
+                .OrderByDescending(b => b.CreatedDate)
+                .Take(10)
+                .ToListAsync();
+
             var dashboard = new DashboardViewModel
             {
-                TotalBugs = bugs.Count,
-                OpenBugs = bugs.Count(b => b.Status != BugStatus.Closed),
-                BugsByPriorityLow = bugs.Count(b => b.Priority == BugPriority.Low),
-                BugsByPriorityMedium = bugs.Count(b => b.Priority == BugPriority.Medium),
-                BugsByPriorityHigh = bugs.Count(b => b.Priority == BugPriority.High),
-                BugsByPriorityCritical = bugs.Count(b => b.Priority == BugPriority.Critical),
-                TotalTestCases = testCases.Count,
-                TestCasesByPriorityLow = testCases.Count(tc => tc.Priority == TestPriority.Low),
-                TestCasesByPriorityMedium = testCases.Count(tc => tc.Priority == TestPriority.Medium),
-                TestCasesByPriorityHigh = testCases.Count(tc => tc.Priority == TestPriority.High),
-                TotalTestRuns = await _context.TestRuns.CountAsync(),
-                RecentTestRuns = testRuns,
-                RecentBugs = bugs.OrderByDescending(b => b.CreatedDate).Take(10).ToList()
+                TotalBugs = totalBugs,
+                OpenBugs = openBugs,
+                BugsByPriorityLow = bugsByPriority.GetValueOrDefault(BugPriority.Low),
+                BugsByPriorityMedium = bugsByPriority.GetValueOrDefault(BugPriority.Medium),
+                BugsByPriorityHigh = bugsByPriority.GetValueOrDefault(BugPriority.High),
+                BugsByPriorityCritical = bugsByPriority.GetValueOrDefault(BugPriority.Critical),
+                TotalTestCases = totalTestCases,
+                TestCasesByPriorityLow = testCasesByPriority.GetValueOrDefault(TestPriority.Low),
+                TestCasesByPriorityMedium = testCasesByPriority.GetValueOrDefault(TestPriority.Medium),
+                TestCasesByPriorityHigh = testCasesByPriority.GetValueOrDefault(TestPriority.High),
+                TotalTestRuns = totalTestRuns,
+                PassRate = passRate,
+                RecentTestRuns = recentTestRuns,
+                RecentBugs = recentBugs
             };
 
             foreach (BugStatus status in Enum.GetValues(typeof(BugStatus)))
             {
-                dashboard.BugsByStatus[status] = bugs.Count(b => b.Status == status);
+                dashboard.BugsByStatus[status] = bugsByStatus.GetValueOrDefault(status);
             }
 
             foreach (TestResult result in Enum.GetValues(typeof(TestResult)))
             {
-                var count = await _context.TestRuns.CountAsync(tr => tr.Result == result);
-                dashboard.TestRunsByResult[result] = count;
-            }
-
-            var total = dashboard.TotalTestRuns;
-            if (total > 0)
-            {
-                var passed = dashboard.TestRunsByResult.GetValueOrDefault(TestResult.Pass);
-                dashboard.PassRate = (double)passed / total * 100;
+                dashboard.TestRunsByResult[result] = runsByResult.GetValueOrDefault(result);
             }
 
             return View(dashboard);

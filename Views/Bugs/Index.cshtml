@@ -1,17 +1,24 @@
 @model BugListViewModel
+@inject BugTrack.Services.BugStatusService BugStatusService
 
 @{
     ViewData["Title"] = "Bugs";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-exclamation-triangle"></i> Bugs</h1>
-    <a asp-action="Create" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Log New Bug
-    </a>
+<div class="page-head">
+    <div>
+        <div class="page-kicker">Defect Register</div>
+        <h1 class="page-title">Bugs</h1>
+        <p class="page-sub">Filter, inspect and track defects through the lifecycle.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Log New Bug
+        </a>
+    </div>
 </div>
 
-<div class="card mb-4">
+<div class="card glass-panel mb-4">
     <div class="card-body">
         <form asp-action="Index" method="get" class="row g-3">
             <div class="col-md-3">
@@ -36,7 +43,7 @@
                 <label class="form-label">Search</label>
                 <div class="input-group">
                     <input asp-for="SearchTerm" class="form-control" placeholder="Search bugs..." />
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" aria-label="Search">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -46,7 +53,7 @@
 </div>
 
 <div class="table-responsive">
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover align-middle">
         <thead>
             <tr>
                 <th>ID</th>
@@ -56,7 +63,7 @@
                 <th>Severity</th>
                 <th>Created</th>
                 <th>Assigned To</th>
-                <th>Actions</th>
+                <th class="text-end">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -65,13 +72,13 @@
                 @foreach (var bug in Model.Bugs)
                 {
                     <tr>
-                        <td>#@bug.Id</td>
+                        <td class="id-cell">#@bug.Id</td>
                         <td>
-                            <a asp-action="Details" asp-route-id="@bug.Id">@bug.Title</a>
+                            <a asp-action="Details" asp-route-id="@bug.Id"><strong>@bug.Title</strong></a>
                         </td>
                         <td>
                             <span class="badge @(bug.Status == BugStatus.Closed ? "bg-success" : bug.Status == BugStatus.New ? "bg-primary" : "bg-warning")">
-                                @bug.Status
+                                @BugStatusService.GetStatusDisplayName(bug.Status)
                             </span>
                         </td>
                         <td>
@@ -84,13 +91,13 @@
                                 @bug.Severity
                             </span>
                         </td>
-                        <td>@bug.CreatedDate.ToString("d")</td>
+                        <td class="font-mono" style="font-size:.85rem;">@bug.CreatedDate.ToString("d")</td>
                         <td>@(bug.AssignedTo ?? "Unassigned")</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-primary">
+                        <td class="text-end text-nowrap">
+                            <a asp-action="Edit" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-primary" aria-label="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a asp-action="Delete" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-danger">
+                            <a asp-action="Delete" asp-route-id="@bug.Id" class="btn btn-sm btn-outline-danger" aria-label="Delete">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>
@@ -100,7 +107,9 @@
             else
             {
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No bugs found.</td>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        No bugs found. <a asp-controller="Bugs" asp-action="Create">Log the first one</a>.
+                    </td>
                 </tr>
             }
         </tbody>

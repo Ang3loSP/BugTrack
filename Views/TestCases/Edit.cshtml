@@ -1,74 +1,83 @@
 @model BugTrack.Models.TestCase
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = $"Edit Test Case #{Model.Id}";
 }
 
-<h1>Edit</h1>
-
-<h4>TestCase</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Module" class="control-label"></label>
-                <input asp-for="Module" class="form-control" />
-                <span asp-validation-for="Module" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Preconditions" class="control-label"></label>
-                <input asp-for="Preconditions" class="form-control" />
-                <span asp-validation-for="Preconditions" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Steps" class="control-label"></label>
-                <input asp-for="Steps" class="form-control" />
-                <span asp-validation-for="Steps" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ExpectedResult" class="control-label"></label>
-                <input asp-for="ExpectedResult" class="form-control" />
-                <span asp-validation-for="ExpectedResult" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Priority" class="control-label"></label>
-                <input asp-for="Priority" class="form-control" />
-                <span asp-validation-for="Priority" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedDate" class="control-label"></label>
-                <input asp-for="UpdatedDate" class="form-control" />
-                <span asp-validation-for="UpdatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TestRuns" class="control-label"></label>
-                <input asp-for="TestRuns" class="form-control" />
-                <span asp-validation-for="TestRuns" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="page-head">
+    <div>
+        <div class="page-kicker">Test Case #@Model.Id.ToString("D4")</div>
+        <h1 class="page-title">Edit Test Case</h1>
+        <p class="page-sub">Keep the steps in sync with the product.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Details
+        </a>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card glass-panel">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Module" class="form-label"></label>
+                                <input asp-for="Module" class="form-control" />
+                                <span asp-validation-for="Module" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Priority" class="form-label"></label>
+                                <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<TestPriority>()"></select>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Preconditions" class="form-label"></label>
+                        <textarea asp-for="Preconditions" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Preconditions" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Steps" class="form-label"></label>
+                        <textarea asp-for="Steps" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Steps" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="ExpectedResult" class="form-label"></label>
+                        <textarea asp-for="ExpectedResult" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ExpectedResult" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <input type="submit" value="Save Changes" class="btn btn-primary" />
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
